@@ -42,64 +42,6 @@ async function getHtmlRows() {
 }
 
 async function handleRequest(req, res) {
-    if (req.url === '/add-item' && req.method === 'POST') {
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-        req.on('end', async () => {
-            try {
-                const data = JSON.parse(body);
-                if (!data.text || data.text.trim() === '') {
-                    res.writeHead(400, { 'Content-Type': 'text/plain' });
-                    res.end('Empty text');
-                    return;
-                }
-
-                const connection = await mysql.createConnection(dbConfig);
-                await connection.execute('INSERT INTO items (text) VALUES (?)', [data.text.trim()]);
-                await connection.end();
-
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ status: 'success' }));
-            } catch (err) {
-                console.error('Error inserting item:', err);
-                res.writeHead(500, { 'Content-Type': 'text/plain' });
-                res.end('Server error');
-            }
-        });
-        return;
-    }
-
-    if (req.url === '/delete-item' && req.method === 'POST') {
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-        req.on('end', async () => {
-            try {
-                const data = JSON.parse(body);
-                if (!data.id) {
-                    res.writeHead(400, { 'Content-Type': 'text/plain' });
-                    res.end('No ID provided');
-                    return;
-                }
-
-                const connection = await mysql.createConnection(dbConfig);
-                await connection.execute('DELETE FROM items WHERE id = ?', [data.id]);
-                await connection.end();
-
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ status: 'success' }));
-            } catch (err) {
-                console.error('Error deleting item:', err);
-                res.writeHead(500, { 'Content-Type': 'text/plain' });
-                res.end('Server error');
-            }
-        });
-        return;
-    }
-
     if (req.url === '/edit-item' && req.method === 'POST') {
         let body = '';
         req.on('data', chunk => {
